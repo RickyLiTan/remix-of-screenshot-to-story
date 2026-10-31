@@ -6,13 +6,13 @@ export const SPENDING_TYPES: TxType[] = ["expense", "savings_contribution", "deb
 export const monthOf = (date: string): Month => date.slice(0, 7);
 
 export function shiftMonth(m: Month, delta: number): Month {
-  const [y, mo] = m.split("-").map(Number);
+  const [y = 0, mo = 1] = m.split("-").map(Number);
   const d = new Date(Date.UTC(y, mo - 1 + delta, 1));
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
 export function monthLabel(m: Month, short = false): string {
-  const [y, mo] = m.split("-").map(Number);
+  const [y = 0, mo = 1] = m.split("-").map(Number);
   return new Date(Date.UTC(y, mo - 1, 1)).toLocaleDateString("en-CA", {
     month: short ? "short" : "long",
     year: short ? undefined : "numeric",
@@ -97,8 +97,8 @@ export function goalProgress(goal: Goal, txs: Transaction[]) {
 
 /** Months from `fromMonth` until (and including) the target date's month; minimum 1. */
 export function monthsUntil(fromMonth: Month, targetDate: string) {
-  const [fy, fm] = fromMonth.split("-").map(Number);
-  const [ty, tm] = targetDate.slice(0, 7).split("-").map(Number);
+  const [fy = 0, fm = 1] = fromMonth.split("-").map(Number);
+  const [ty = 0, tm = 1] = targetDate.slice(0, 7).split("-").map(Number);
   return Math.max(1, (ty - fy) * 12 + (tm - fm) + 1);
 }
 

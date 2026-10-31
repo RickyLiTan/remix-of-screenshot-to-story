@@ -72,7 +72,7 @@ export function buildSeed(current: Month): FinanceState {
     }
     const days = isCurrent ? [4, 11, 18] : [4, 11, 18, 25];
     days.forEach((day, k) => {
-      add({ description: ["Superstore", "Farmers market", "No Frills", "Costco"][k], amount: wobble(220, k), date: d(day), categoryId: "groceries", type: "expense", memberId: k % 2 ? "m_b" : "m_a" });
+      add({ description: ["Superstore", "Farmers market", "No Frills", "Costco"][k] ?? "", amount: wobble(220, k), date: d(day), categoryId: "groceries", type: "expense", memberId: k % 2 ? "m_b" : "m_a" });
     });
     add({ description: "Gas station", amount: wobble(95, 2), date: d(9), categoryId: "gas", type: "expense", memberId: "m_b" });
     add({ description: "Dinner out", amount: wobble(110, 4), date: d(14), categoryId: "restaurants", type: "expense", memberId: "m_a" });

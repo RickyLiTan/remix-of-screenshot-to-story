@@ -11,9 +11,10 @@ import { toast } from "sonner";
 
 export const selectCls = "h-9 w-full rounded-md border border-input bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
 
-type Draft = Partial<Transaction>;
+type Draft = { [K in keyof Transaction]?: Transaction[K] | undefined };
+type Errs = Partial<Record<"description" | "amount" | "date" | "categoryId", string>>;
 
-export function TransactionDialog({ open, onOpenChange, initial }: { open: boolean; onOpenChange: (o: boolean) => void; initial?: Draft }) {
+export function TransactionDialog({ open, onOpenChange, initial }: { open: boolean; onOpenChange: (o: boolean) => void; initial?: Draft | undefined }) {
   const { state, month, saveTransaction } = useFinance();
   const blank = (): Draft => ({
     description: "",
@@ -28,7 +29,7 @@ export function TransactionDialog({ open, onOpenChange, initial }: { open: boole
     notes: "",
   });
   const [d, setD] = useState<Draft>(blank);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Errs>({});
 
   useEffect(() => {
     if (open) {
@@ -44,7 +45,7 @@ export function TransactionDialog({ open, onOpenChange, initial }: { open: boole
   const goals = state.goals.filter((g) => (d.type === "debt_repayment" ? g.kind === "payoff" : d.type === "savings_contribution" ? g.kind === "savings" : true));
 
   function submit() {
-    const e: Record<string, string> = {};
+    const e: Errs = {};
     if (!d.description?.trim()) e.description = "Add a description";
     if (!d.amount || d.amount <= 0 || !Number.isFinite(d.amount)) e.amount = "Enter an amount above $0";
     if (!d.date || !/^\d{4}-\d{2}-\d{2}$/.test(d.date)) e.date = "Pick a date";
@@ -155,7 +156,7 @@ export function TransactionDialog({ open, onOpenChange, initial }: { open: boole
   );
 }
 
-export function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+export function Field({ label, error, children }: { label: string; error?: string | undefined; children: React.ReactNode }) {
   return (
     <div className="grid gap-1.5">
       <Label className="text-xs text-muted-foreground">{label}</Label>

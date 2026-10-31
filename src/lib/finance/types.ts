@@ -52,7 +52,7 @@ export interface Transaction {
   type: TxType;
   scope: Scope;
   memberId: MemberId;
-  notes?: string;
+  notes?: string | undefined;
   goalId?: string | null;
   recurring: boolean;
   createdAt: string;
