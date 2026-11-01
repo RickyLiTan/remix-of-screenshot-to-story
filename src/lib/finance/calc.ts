@@ -121,3 +121,11 @@ export const fmt = (n: number, cents = false) =>
     minimumFractionDigits: cents ? 2 : 0,
     maximumFractionDigits: cents ? 2 : 0,
   });
+
+export function netWorth(accounts: import("./types").Account[]) {
+  const debtTypes = ["loan", "credit_card", "mortgage"];
+  const assets = sum(accounts.filter((a) => !debtTypes.includes(a.type)).map((a) => a.balance));
+  const debts = sum(accounts.filter((a) => debtTypes.includes(a.type)).map((a) => a.balance));
+  const savings = sum(accounts.filter((a) => ["savings", "investment", "retirement"].includes(a.type)).map((a) => a.balance));
+  return { assets, debts, savings, net: sum([assets, -debts]) };
+}
