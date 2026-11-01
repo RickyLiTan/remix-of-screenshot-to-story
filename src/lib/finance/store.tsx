@@ -11,7 +11,7 @@ interface Ctx {
   state: FinanceState;
   month: Month;
   setMonth: (m: Month) => void;
-  saveTransaction: (t: Omit<Transaction, "id" | "createdAt"> & { id?: string }) => void;
+  saveTransaction: (t: Omit<Transaction, "id" | "createdAt"> & { id?: string | undefined }) => void;
   deleteTransaction: (id: string) => void;
   addIncome: (r: Omit<IncomeRecord, "id" | "createdAt">) => void;
   setBudget: (categoryId: string, month: Month, amount: number) => void;
