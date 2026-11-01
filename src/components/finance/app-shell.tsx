@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { BarChart3, Home, PiggyBank, User, Wallet, FlaskConical } from "lucide-react";
+import { BarChart3, Home, Landmark, PiggyBank, User, Wallet, FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFinance } from "@/lib/finance/store";
 
@@ -9,6 +9,7 @@ const nav = [
   { to: "/budget", label: "Household Budget", icon: Wallet },
   { to: "/goals", label: "Goals & Purchases", icon: PiggyBank },
   { to: "/personal", label: "Personal Spending", icon: User },
+  { to: "/net-worth", label: "Net Worth", icon: Landmark },
   { to: "/reports", label: "Reports & History", icon: BarChart3 },
 ] as const;
 
@@ -81,7 +82,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </main>
 
-      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t bg-background/95 backdrop-blur md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-6 border-t bg-background/95 backdrop-blur md:hidden">
         {nav.map(({ to, label, icon: Icon }) => (
           <Link key={to} to={to} className={cn("flex flex-col items-center gap-1 py-2.5 text-[10px] text-muted-foreground", path === to && "text-foreground")}>
             <Icon className="h-5 w-5" />

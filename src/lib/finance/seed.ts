@@ -111,3 +111,17 @@ export function buildSeed(current: Month): FinanceState {
     viewerId: "m_a",
   };
 }
+
+export function seedAccounts(): import("./types").Account[] {
+  const now = new Date().toISOString();
+  const a = (name: string, type: import("./types").AccountType, balance: number, owner: string) => ({ id: uid("acct"), name, type, balance, owner, updatedAt: now });
+  return [
+    a("Joint chequing", "chequing", 3400, "shared"),
+    a("Emergency fund (HISA)", "savings", 12500, "shared"),
+    a("Travel savings", "savings", 2100, "shared"),
+    a("Alex TFSA", "investment", 18200, "m_a"),
+    a("Sam RRSP", "retirement", 9600, "m_b"),
+    a("Car loan", "loan", 14800, "shared"),
+    a("Credit card", "credit_card", 650, "shared"),
+  ];
+}

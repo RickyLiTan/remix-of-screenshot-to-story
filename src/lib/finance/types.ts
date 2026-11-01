@@ -85,6 +85,7 @@ export interface FinanceState {
   goals: Goal[];
   visibility: Visibility;
   viewerId: MemberId;
+  accounts?: Account[];
 }
 
 export const TX_TYPE_LABEL: Record<TxType, string> = {
@@ -103,3 +104,19 @@ export const GROUP_LABEL: Record<CategoryGroup, string> = {
   savings: "Savings contributions",
   personal: "Personal",
 };
+
+export type AccountType = "chequing" | "savings" | "investment" | "retirement" | "property" | "loan" | "credit_card" | "mortgage" | "other";
+export const DEBT_ACCOUNT_TYPES: AccountType[] = ["loan", "credit_card", "mortgage"];
+export const ACCOUNT_TYPE_LABEL: Record<AccountType, string> = {
+  chequing: "Chequing", savings: "Savings", investment: "Investments", retirement: "Retirement (RRSP/TFSA)",
+  property: "Property / vehicle", loan: "Loan", credit_card: "Credit card", mortgage: "Mortgage", other: "Other asset",
+};
+
+export interface Account {
+  id: string;
+  name: string;
+  type: AccountType;
+  balance: number; // always positive; debt types count against net worth
+  owner: "shared" | MemberId;
+  updatedAt: string;
+}
