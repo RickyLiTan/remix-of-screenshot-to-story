@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { BarChart3, Home, Landmark, PiggyBank, User, Wallet, FlaskConical } from "lucide-react";
+import { BarChart3, Home, Landmark, PiggyBank, User, Wallet, FlaskConical, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFinance } from "@/lib/finance/store";
 
@@ -10,6 +10,7 @@ const nav = [
   { to: "/goals", label: "Goals & Purchases", icon: PiggyBank },
   { to: "/personal", label: "Personal Spending", icon: User },
   { to: "/net-worth", label: "Net Worth", icon: Landmark },
+  { to: "/settings", label: "Income", icon: Settings },
   { to: "/reports", label: "Reports & History", icon: BarChart3 },
 ] as const;
 
