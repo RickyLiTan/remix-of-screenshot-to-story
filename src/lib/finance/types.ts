@@ -13,6 +13,7 @@ export interface IncomeRecord {
   month: Month;
   amount: number; // take-home CAD
   householdPct: number; // 0-100, stored per record so history is preserved
+  frequency?: "fixed" | "month-only"; // omitted on legacy records means fixed
   createdAt: string;
 }
 

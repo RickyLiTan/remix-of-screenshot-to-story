@@ -25,10 +25,10 @@ export function splitIncome(amount: number, householdPct: number) {
   return { household, personal: Math.round((amount - household) * 100) / 100 };
 }
 
-/** Latest income record for a member effective at the given month. */
+/** Monthly overrides expire; fixed income continues from its effective month. */
 export function incomeFor(incomes: IncomeRecord[], memberId: string, month: Month) {
-  return incomes
-    .filter((i) => i.memberId === memberId && i.month <= month)
+  return [...incomes].reverse()
+    .filter((i) => i.memberId === memberId && (i.month === month || (i.month < month && i.frequency !== "month-only")))
     .sort((a, b) => (a.month === b.month ? b.createdAt.localeCompare(a.createdAt) : b.month.localeCompare(a.month)))[0];
 }
 

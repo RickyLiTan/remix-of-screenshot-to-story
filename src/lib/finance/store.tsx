@@ -59,7 +59,13 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
           return { ...s, transactions: [...s.transactions, { ...t, id: uid("tx"), createdAt: now() } as Transaction] };
         }),
       deleteTransaction: (id) => update((s) => ({ ...s, transactions: s.transactions.filter((t) => t.id !== id) })),
-      addIncome: (r) => update((s) => ({ ...s, incomes: [...s.incomes, { ...r, id: uid("inc"), createdAt: now() }] })),
+      addIncome: (r) => update((s) => ({
+        ...s,
+        incomes: [
+          ...s.incomes.filter((i) => !(i.memberId === r.memberId && i.month === r.month && (i.frequency ?? "fixed") === (r.frequency ?? "fixed"))),
+          { ...r, id: uid("inc"), createdAt: now() },
+        ],
+      })),
       setBudget: (categoryId, m, amount) =>
         update((s) => ({
           ...s,

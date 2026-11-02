@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Resolve income through `incomeFor` for every monthly view; fixed records carry forward and month-only records expire, while records without a frequency retain legacy fixed behavior.
