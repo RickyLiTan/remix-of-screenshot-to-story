@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { buildSeed, uid } from "./seed";
+import { buildSeed, seedAccounts, uid } from "./seed";
 import { monthOf, shiftMonth, txInMonth } from "./calc";
-import type { Category, FinanceState, Goal, IncomeRecord, Month, Transaction, Visibility } from "./types";
+import type { Account, Category, FinanceState, Goal, IncomeRecord, Member, Month, Transaction, Visibility } from "./types";
 
 const KEY = "common-ground-demo-v1";
 
@@ -21,6 +21,9 @@ interface Ctx {
   linkToGoal: (txId: string, goalId: string) => void;
   setVisibility: (v: Visibility) => void;
   setViewer: (id: string) => void;
+  updateMember: (id: string, patch: Partial<Omit<Member, "id">>) => void;
+  saveAccount: (a: Omit<Account, "id" | "updatedAt"> & { id?: string }) => void;
+  deleteAccount: (id: string) => void;
   resetDemo: () => void;
 }
 
@@ -81,6 +84,15 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       linkToGoal: (txId, goalId) => update((s) => ({ ...s, transactions: s.transactions.map((t) => (t.id === txId ? { ...t, goalId } : t)) })),
       setVisibility: (visibility) => update((s) => ({ ...s, visibility })),
       setViewer: (viewerId) => update((s) => ({ ...s, viewerId })),
+      updateMember: (id, patch) => update((s) => ({ ...s, members: s.members.map((m) => (m.id === id ? { ...m, ...patch } : m)) })),
+      saveAccount: (a) =>
+        update((s) => {
+          const list = s.accounts ?? seedAccounts();
+          const rec = { ...a, updatedAt: now() } as Account;
+          if (a.id) return { ...s, accounts: list.map((x) => (x.id === a.id ? { ...x, ...rec } : x)) };
+          return { ...s, accounts: [...list, { ...rec, id: uid("acct") }] };
+        }),
+      deleteAccount: (id) => update((s) => ({ ...s, accounts: (s.accounts ?? seedAccounts()).filter((a) => a.id !== id) })),
       resetDemo: () => {
         localStorage.removeItem(KEY);
         setState(buildSeed(currentMonth()));
