@@ -89,9 +89,14 @@ function GoalsPage() {
                     </div>
                     <h3 className="font-display text-2xl">{g.name}</h3>
                   </div>
-                  <button aria-label="Delete goal" className="rounded p-1.5 hover:bg-muted" onClick={() => { deleteGoal(g.id); toast.success("Goal removed"); }}>
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <div className="flex gap-1">
+                    <button aria-label={`Edit ${g.name}`} className="rounded p-1.5 hover:bg-muted" onClick={() => openEdit(g)}>
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button aria-label="Delete goal" className="rounded p-1.5 hover:bg-muted" onClick={() => { deleteGoal(g.id); toast.success("Goal removed"); }}>
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
                 <p className="tabular mb-2 text-sm">{fmt(p.progress)} of {fmt(g.targetAmount)} <span className="text-muted-foreground">· {Math.round(p.pct)}%</span></p>
                 <Bar pct={p.pct} tone={g.kind === "payoff" ? "positive" : "lavender"} />
@@ -108,7 +113,7 @@ function GoalsPage() {
       )}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>New goal</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editingId ? "Edit goal" : "New goal"}</DialogTitle></DialogHeader>
           <div className="grid gap-3">
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Type</Label><select className={selectCls} value={d.kind} onChange={(e) => setD({ ...d, kind: e.target.value as GoalKind })}><option value="savings">Savings</option><option value="payoff">Debt payoff</option></select></div>
@@ -122,7 +127,7 @@ function GoalsPage() {
               <div><Label>Target date</Label><Input type="date" value={d.targetDate} onChange={(e) => setD({ ...d, targetDate: e.target.value })} /></div>
             </div>
             {err && <p className="text-sm text-destructive">{err}</p>}
-            <Button onClick={submit}>Save goal</Button>
+            <Button onClick={submit}>{editingId ? "Save changes" : "Save goal"}</Button>
           </div>
         </DialogContent>
       </Dialog>
