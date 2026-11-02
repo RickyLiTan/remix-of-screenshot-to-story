@@ -31,21 +31,37 @@ type Draft = { kind: GoalKind; name: string; targetAmount: string; startingAmoun
 function GoalsPage() {
   const { state, month, saveGoal, deleteGoal } = useFinance();
   const [open, setOpen] = useState(false);
-  const [d, setD] = useState<Draft>({ kind: "savings", name: "", targetAmount: "", startingAmount: "0", monthlyTarget: "", targetDate: "", priority: "medium" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const blank = () => ({ kind: "savings" as GoalKind, name: "", targetAmount: "", startingAmount: "0", monthlyTarget: "", targetDate: "", priority: "medium" as Priority });
+  const [d, setD] = useState<Draft>(blank);
   const [err, setErr] = useState("");
+
+  const openNew = () => {
+    setEditingId(null);
+    setD(blank());
+    setErr("");
+    setOpen(true);
+  };
+  const openEdit = (g: Goal) => {
+    setEditingId(g.id);
+    setD({ kind: g.kind, name: g.name, targetAmount: String(g.targetAmount), startingAmount: String(g.startingAmount), monthlyTarget: String(g.monthlyTarget), targetDate: g.targetDate, priority: g.priority });
+    setErr("");
+    setOpen(true);
+  };
 
   const submit = () => {
     const target = Number(d.targetAmount);
     if (!d.name.trim()) return setErr("Give the goal a name.");
     if (!(target > 0)) return setErr("Target must be more than zero.");
     if (!d.targetDate) return setErr("Pick a target date.");
-    const g: Omit<Goal, "id" | "createdAt"> = {
+    saveGoal({
+      ...(editingId ? { id: editingId } : {}),
       kind: d.kind, name: d.name.trim(), targetAmount: target, startingAmount: Number(d.startingAmount) || 0,
       monthlyTarget: Number(d.monthlyTarget) || 0, targetDate: d.targetDate, priority: d.priority,
-    };
-    saveGoal(g);
-    toast.success("Goal added");
+    });
+    toast.success(editingId ? "Goal updated" : "Goal added");
     setOpen(false);
+    setEditingId(null);
     setErr("");
   };
 
@@ -54,7 +70,7 @@ function GoalsPage() {
   return (
     <div>
       <PageHeader eyebrow="Saving & paying off" title="Goals">
-        <Button onClick={() => setOpen(true)}><Plus className="mr-1 h-4 w-4" />New goal</Button>
+        <Button onClick={openNew}><Plus className="mr-1 h-4 w-4" />New goal</Button>
       </PageHeader>
       {goals.length === 0 ? (
         <Empty>No goals yet.</Empty>
