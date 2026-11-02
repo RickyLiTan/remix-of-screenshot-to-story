@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { Bar, Empty, PageHeader, Pill } from "@/components/finance/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
