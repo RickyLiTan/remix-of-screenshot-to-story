@@ -36,14 +36,14 @@ function SettingsPage() {
   );
   return (
     <div>
-      <PageHeader eyebrow={`Effective from ${month}`} title="Income & household pool" />
+      <PageHeader eyebrow={`Selected month: ${month}`} title="Income & household pool" />
       <div className="mb-6 grid grid-cols-2 gap-3">
         <Stat label="Combined take-home" value={fmt(totals.income)} />
         <Stat label="Household pool" value={fmt(totals.pool)} tone="positive" />
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         {state.members.map((m) => (
-          <MemberCard key={m.id} member={m} />
+          <MemberCard key={`${m.id}-${month}-${incomeFor(state.incomes, m.id, month)?.id ?? "new"}`} member={m} />
         ))}
       </div>
     </div>
@@ -56,6 +56,7 @@ function MemberCard({ member }: { member: Member }) {
   const [name, setName] = useState(member.name);
   const [amount, setAmount] = useState(String(rec?.amount ?? 0));
   const [pct, setPct] = useState(String(rec?.householdPct ?? 80));
+  const [frequency, setFrequency] = useState<"fixed" | "month-only">(rec?.frequency ?? "fixed");
   const a = Number(amount) || 0;
   const p = Math.min(100, Math.max(0, Number(pct) || 0));
   const split = splitIncome(a, p);
@@ -64,7 +65,9 @@ function MemberCard({ member }: { member: Member }) {
     const n = name.trim() || member.name;
     const initials = n.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
     updateMember(member.id, { name: n, initials });
-    if (!rec || rec.amount !== a || rec.householdPct !== p) addIncome({ memberId: member.id, month, amount: a, householdPct: p });
+    if (!rec || rec.amount !== a || rec.householdPct !== p || (rec.frequency ?? "fixed") !== frequency) {
+      addIncome({ memberId: member.id, month, amount: a, householdPct: p, frequency });
+    }
     toast.success(`Saved ${n}'s settings`);
   };
 
@@ -78,6 +81,17 @@ function MemberCard({ member }: { member: Member }) {
         <div className="space-y-1.5">
           <Label htmlFor={`a-${member.id}`}>Monthly take-home income</Label>
           <Input id={`a-${member.id}`} type="number" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
+        </div>
+        <div className="space-y-1.5">
+          <Label>Income applies to</Label>
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label={`${member.name}'s income frequency`}>
+            <Button type="button" variant={frequency === "fixed" ? "default" : "outline"} aria-pressed={frequency === "fixed"} onClick={() => setFrequency("fixed")}>
+              Fixed monthly income
+            </Button>
+            <Button type="button" variant={frequency === "month-only" ? "default" : "outline"} aria-pressed={frequency === "month-only"} onClick={() => setFrequency("month-only")}>
+              This month only
+            </Button>
+          </div>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor={`p-${member.id}`}>% into household pool</Label>
