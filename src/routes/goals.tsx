@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { Bar, Empty, PageHeader, Pill } from "@/components/finance/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,21 +31,37 @@ type Draft = { kind: GoalKind; name: string; targetAmount: string; startingAmoun
 function GoalsPage() {
   const { state, month, saveGoal, deleteGoal } = useFinance();
   const [open, setOpen] = useState(false);
-  const [d, setD] = useState<Draft>({ kind: "savings", name: "", targetAmount: "", startingAmount: "0", monthlyTarget: "", targetDate: "", priority: "medium" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const blank = () => ({ kind: "savings" as GoalKind, name: "", targetAmount: "", startingAmount: "0", monthlyTarget: "", targetDate: "", priority: "medium" as Priority });
+  const [d, setD] = useState<Draft>(blank);
   const [err, setErr] = useState("");
+
+  const openNew = () => {
+    setEditingId(null);
+    setD(blank());
+    setErr("");
+    setOpen(true);
+  };
+  const openEdit = (g: Goal) => {
+    setEditingId(g.id);
+    setD({ kind: g.kind, name: g.name, targetAmount: String(g.targetAmount), startingAmount: String(g.startingAmount), monthlyTarget: String(g.monthlyTarget), targetDate: g.targetDate, priority: g.priority });
+    setErr("");
+    setOpen(true);
+  };
 
   const submit = () => {
     const target = Number(d.targetAmount);
     if (!d.name.trim()) return setErr("Give the goal a name.");
     if (!(target > 0)) return setErr("Target must be more than zero.");
     if (!d.targetDate) return setErr("Pick a target date.");
-    const g: Omit<Goal, "id" | "createdAt"> = {
+    saveGoal({
+      ...(editingId ? { id: editingId } : {}),
       kind: d.kind, name: d.name.trim(), targetAmount: target, startingAmount: Number(d.startingAmount) || 0,
       monthlyTarget: Number(d.monthlyTarget) || 0, targetDate: d.targetDate, priority: d.priority,
-    };
-    saveGoal(g);
-    toast.success("Goal added");
+    });
+    toast.success(editingId ? "Goal updated" : "Goal added");
     setOpen(false);
+    setEditingId(null);
     setErr("");
   };
 
@@ -54,7 +70,7 @@ function GoalsPage() {
   return (
     <div>
       <PageHeader eyebrow="Saving & paying off" title="Goals">
-        <Button onClick={() => setOpen(true)}><Plus className="mr-1 h-4 w-4" />New goal</Button>
+        <Button onClick={openNew}><Plus className="mr-1 h-4 w-4" />New goal</Button>
       </PageHeader>
       {goals.length === 0 ? (
         <Empty>No goals yet.</Empty>
@@ -73,9 +89,14 @@ function GoalsPage() {
                     </div>
                     <h3 className="font-display text-2xl">{g.name}</h3>
                   </div>
-                  <button aria-label="Delete goal" className="rounded p-1.5 hover:bg-muted" onClick={() => { deleteGoal(g.id); toast.success("Goal removed"); }}>
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <div className="flex gap-1">
+                    <button aria-label={`Edit ${g.name}`} className="rounded p-1.5 hover:bg-muted" onClick={() => openEdit(g)}>
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button aria-label="Delete goal" className="rounded p-1.5 hover:bg-muted" onClick={() => { deleteGoal(g.id); toast.success("Goal removed"); }}>
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
                 <p className="tabular mb-2 text-sm">{fmt(p.progress)} of {fmt(g.targetAmount)} <span className="text-muted-foreground">· {Math.round(p.pct)}%</span></p>
                 <Bar pct={p.pct} tone={g.kind === "payoff" ? "positive" : "lavender"} />
@@ -92,7 +113,7 @@ function GoalsPage() {
       )}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>New goal</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editingId ? "Edit goal" : "New goal"}</DialogTitle></DialogHeader>
           <div className="grid gap-3">
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Type</Label><select className={selectCls} value={d.kind} onChange={(e) => setD({ ...d, kind: e.target.value as GoalKind })}><option value="savings">Savings</option><option value="payoff">Debt payoff</option></select></div>
@@ -106,7 +127,7 @@ function GoalsPage() {
               <div><Label>Target date</Label><Input type="date" value={d.targetDate} onChange={(e) => setD({ ...d, targetDate: e.target.value })} /></div>
             </div>
             {err && <p className="text-sm text-destructive">{err}</p>}
-            <Button onClick={submit}>Save goal</Button>
+            <Button onClick={submit}>{editingId ? "Save changes" : "Save goal"}</Button>
           </div>
         </DialogContent>
       </Dialog>
