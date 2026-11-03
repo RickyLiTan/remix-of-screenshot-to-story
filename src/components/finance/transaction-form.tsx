@@ -73,7 +73,7 @@ export function TransactionDialog({ open, onOpenChange, initial }: { open: boole
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl font-normal">{d.id ? "Edit transaction" : "New transaction"}</DialogTitle>
+          <DialogTitle className="font-display text-2xl">{d.id ? "Edit transaction" : "New transaction"}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4">
           <Field label="Description" error={errors.description}>
