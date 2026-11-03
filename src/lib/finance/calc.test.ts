@@ -37,3 +37,19 @@ describe("income frequency", () => {
     expect(incomeFor([fixed, { ...monthly, createdAt: fixed.createdAt }], "partner", "2026-11")?.amount).toBe(6000);
   });
 });
+describe("multiple income streams", () => {
+  const salary: IncomeRecord = { ...fixed, id: "s", streamId: "salary", amount: 5000, householdPct: 80 };
+  const side: IncomeRecord = { ...fixed, id: "f", streamId: "side", amount: 1000, householdPct: 50, frequency: "month-only" };
+  it("adds a month-only stream on top of fixed income for that month only", async () => {
+    const { memberAllocation } = await import("./calc");
+    const st = { incomes: [salary, side] } as never;
+    expect(memberAllocation(st, "partner", "2026-11")).toMatchObject({ income: 6000, household: 4500 });
+    expect(memberAllocation(st, "partner", "2026-12")).toMatchObject({ income: 5000, household: 4000 });
+  });
+  it("a removed stream stops counting from its month", async () => {
+    const { incomeStreamsFor } = await import("./calc");
+    const gone = { ...salary, id: "x", month: "2027-01", removed: true, amount: 0, createdAt: "2026-12-01T00:00:00Z" };
+    expect(incomeStreamsFor([salary, gone], "partner", "2026-12")).toHaveLength(1);
+    expect(incomeStreamsFor([salary, gone], "partner", "2027-01")).toHaveLength(0);
+  });
+});
