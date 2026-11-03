@@ -14,6 +14,9 @@ export interface IncomeRecord {
   amount: number; // take-home CAD
   householdPct: number; // 0-100, stored per record so history is preserved
   frequency?: "fixed" | "month-only"; // omitted on legacy records means fixed
+  streamId?: string; // omitted on legacy records means "main"
+  label?: string; // e.g. "Salary", "Freelance"
+  removed?: boolean; // stops a fixed stream from this month on
   createdAt: string;
 }
 

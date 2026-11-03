@@ -62,7 +62,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       addIncome: (r) => update((s) => ({
         ...s,
         incomes: [
-          ...s.incomes.filter((i) => !(i.memberId === r.memberId && i.month === r.month && (i.frequency ?? "fixed") === (r.frequency ?? "fixed"))),
+          ...s.incomes.filter((i) => !(i.memberId === r.memberId && i.month === r.month && (i.streamId ?? "main") === (r.streamId ?? "main") && (i.frequency ?? "fixed") === (r.frequency ?? "fixed"))),
           { ...r, id: uid("inc"), createdAt: now() },
         ],
       })),

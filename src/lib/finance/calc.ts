@@ -26,10 +26,20 @@ export function splitIncome(amount: number, householdPct: number) {
 }
 
 /** Monthly overrides expire; fixed income continues from its effective month. */
-export function incomeFor(incomes: IncomeRecord[], memberId: string, month: Month) {
+export const streamOf = (i: IncomeRecord) => i.streamId ?? "main";
+
+export function incomeFor(incomes: IncomeRecord[], memberId: string, month: Month, streamId = "main") {
   return [...incomes].reverse()
-    .filter((i) => i.memberId === memberId && (i.month === month || (i.month < month && i.frequency !== "month-only")))
+    .filter((i) => i.memberId === memberId && streamOf(i) === streamId && (i.month === month || (i.month < month && i.frequency !== "month-only")))
     .sort((a, b) => (a.month === b.month ? b.createdAt.localeCompare(a.createdAt) : b.month.localeCompare(a.month)))[0];
+}
+
+/** All active income streams for a member in a month, each resolved through incomeFor. */
+export function incomeStreamsFor(incomes: IncomeRecord[], memberId: string, month: Month) {
+  const ids = [...new Set(incomes.filter((i) => i.memberId === memberId).map(streamOf))];
+  return ids
+    .map((id) => incomeFor(incomes, memberId, month, id))
+    .filter((r): r is IncomeRecord => !!r && !r.removed);
 }
 
 export function budgetFor(state: FinanceState, categoryId: string, month: Month): number {
@@ -60,9 +70,12 @@ export function personalSpending(txs: Transaction[], memberId: string, month: Mo
 }
 
 export function memberAllocation(state: FinanceState, memberId: string, month: Month) {
-  const rec = incomeFor(state.incomes, memberId, month);
-  if (!rec) return { income: 0, pct: 80, household: 0, personal: 0 };
-  return { income: rec.amount, pct: rec.householdPct, ...splitIncome(rec.amount, rec.householdPct) };
+  const recs = incomeStreamsFor(state.incomes, memberId, month);
+  if (!recs.length) return { income: 0, pct: 80, household: 0, personal: 0 };
+  const income = sum(recs.map((r) => r.amount));
+  const household = sum(recs.map((r) => splitIncome(r.amount, r.householdPct).household));
+  const pct = income ? Math.round((household / income) * 1000) / 10 : recs[0]!.householdPct;
+  return { income, pct, household, personal: sum([income, -household]) };
 }
 
 export function recordedContribution(txs: Transaction[], memberId: string, month: Month) {
