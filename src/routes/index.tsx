@@ -20,6 +20,9 @@ function Overview() {
         <Stat label="Household share" value={fmt(s.household)} />
         <Stat label="Household spending" value={fmt(s.expenses)} />
         <Stat label="Remaining" value={fmt(s.remaining)} tone={s.remaining >= 0 ? "positive" : "negative"} />
+        {s.members.map((m) => (
+          <Stat key={m.member.id} label={`${m.member.name}'s personal left`} value={`${fmt(m.remainingPersonal)} of ${fmt(m.personal)}`} tone={m.remainingPersonal >= 0 ? "positive" : "negative"} />
+        ))}
       </div>
       <Panel title="Recent household transactions">
         <TransactionList items={txInMonth(state.transactions, month).filter((t) => t.scope === "household").slice(0, 10)} filters={false} />

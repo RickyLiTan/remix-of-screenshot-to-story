@@ -39,6 +39,9 @@ function SettingsPage() {
       <div className="mb-6 grid grid-cols-2 gap-3">
         <Stat label="Combined take-home" value={fmt(totals.income)} />
         <Stat label="Household pool" value={fmt(totals.pool)} tone="positive" />
+        {state.members.map((m) => (
+          <Stat key={m.id} label={`${m.name}'s personal spending`} value={fmt(memberAllocation(state, m.id, month).personal)} />
+        ))}
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         {state.members.map((m) => (
@@ -141,7 +144,7 @@ function MemberCard({ member }: { member: Member }) {
           <Plus className="mr-1 h-4 w-4" /> Add income source
         </Button>
         <p className="text-sm text-muted-foreground">
-          Total {fmt(total)} · {fmt(pool)} to the household pool · {fmt(total - pool)} personal spending
+          Total {fmt(total)} · {fmt(pool)} to the household pool · {fmt(total - pool)} for {member.name}'s personal spending
         </p>
         <Button onClick={save}>Save</Button>
       </div>
